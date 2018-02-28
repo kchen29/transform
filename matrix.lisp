@@ -44,3 +44,47 @@
 (defun clear-matrix (matrix)
   "Adjusts size to zero."
   (adjust-array matrix '(4 0)))
+
+;;;transformations
+;; (defmacro deftransform (transform-name args docstring &body body)
+;;   `(defun ,transform-name ,args
+;;      ,docstring
+;;      (let ((transform (make-matrix)))
+;;        (to-identity transform)
+;;        ,@body
+;;        transform)))
+
+;; (deftransform make-translate (delx dely delz)
+;;     "Makes a matrix that translates by DELX, DELY, and DELZ"
+;;     (setf (aref transform 0 3) delx
+;;           (aref transform 1 3) dely
+;;           (aref transform 2 3) delz))
+
+(defun make-translate (delx dely delz)
+  "Makes a matrix that translates by DELX, DELY, and DELZ"
+  (let ((transform (make-matrix)))
+    (to-identity transform)
+    (setf (aref transform 0 3) delx
+          (aref transform 1 3) dely
+          (aref transform 2 3) delz)
+    transform))
+
+(defun make-scale (x-scale y-scale z-scale)
+  "Makes a matrix that scales x by X-SCALE, y by Y-SCALE, and z by Z-SCALE"
+  (let ((transform (make-matrix)))
+    (to-identity transform)
+    (setf (aref transform 0 0) x-scale
+          (aref transform 1 1) y-scale
+          (aref transform 2 2) z-scale)
+    transform))
+
+(defun make-rotate-z (degrees)
+  "Makes a matrix that rotates by DEGREES counter-clockwise using z as the axis"
+  (let ((transform (make-matrix))
+        (radians (/ (* degrees pi) 180)))
+    (to-identity transform)
+    (setf (aref transform 0 0) (cos radians)
+          (aref transform 0 1) (- 0 (sin radians))
+          (aref transform 1 0) (sin radians)
+          (aref transform 1 1) (cos radians))
+    transform))
