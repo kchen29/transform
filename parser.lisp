@@ -27,6 +27,24 @@
 	    takes 1 argument (filename)
 	 quit: end parsing"
   (with-open-file (stream filename)
-    (do ((line (read-line stream nil "quit") (read-line stream nil "quit")))
+    (do ((line (next-line stream) (next-line stream)))
         ((string= line "quit"))
-      (format t line))))
+      (switch line #'string=
+        ("line")
+        ("ident")
+        ("scale")
+        ("translate")
+        ("rotate")))))
+
+(defun next-line (stream)
+  "Reads the next line in stream. Returns \"quit\" if eof is reached"
+  (read-line stream nil "quit"))
+
+(defmacro switch (value test &body cases)
+  "Macro for switch-case statements."
+  `(cond
+     ,@(loop for (test-value return-value) in cases
+          if (eql 'otherwise test-value)
+            collect `(t ,return-value)
+          else
+            collect `((funcall ,test ,value ,test-value) ,return-value))))

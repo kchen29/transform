@@ -46,45 +46,36 @@
   (adjust-array matrix '(4 0)))
 
 ;;;transformations
-;; (defmacro deftransform (transform-name args docstring &body body)
-;;   `(defun ,transform-name ,args
-;;      ,docstring
-;;      (let ((transform (make-matrix)))
-;;        (to-identity transform)
-;;        ,@body
-;;        transform)))
+(defmacro deftransform (transform-name args &body body)
+  "Defuns make-transform given TRANSFORM-NAME, using args and the body.
+   Also defuns do-transform, applying make-transform to another matrix."
+  `(defun ,(intern (concatenate 'string "MAKE-" (symbol-name transform-name))) ,args
+     ,(when (stringp (first body))
+            (pop body))
+     (let ((transform (make-matrix)))
+       (to-identity transform)
+       ,@body
+       transform))
+  `(defun ,(intern (concatenate 'string "DO-" (symbol-name transform-name))) ,(append args '(transform-matrix))
+     ,(concatenate 'string "Applies make-" (string-downcase (symbol-name transform-name)) " to TRANSFORM-MATRIX")
+     (matrix-multiply (,(intern (concatenate 'string "MAKE-" (symbol-name transform-name))) ,@args) transform-matrix)))
 
-;; (deftransform make-translate (delx dely delz)
-;;     "Makes a matrix that translates by DELX, DELY, and DELZ"
-;;     (setf (aref transform 0 3) delx
-;;           (aref transform 1 3) dely
-;;           (aref transform 2 3) delz))
-
-(defun make-translate (delx dely delz)
+(deftransform translate (delx dely delz)
   "Makes a matrix that translates by DELX, DELY, and DELZ"
-  (let ((transform (make-matrix)))
-    (to-identity transform)
-    (setf (aref transform 0 3) delx
-          (aref transform 1 3) dely
-          (aref transform 2 3) delz)
-    transform))
+  (setf (aref transform 0 3) delx
+        (aref transform 1 3) dely
+        (aref transform 2 3) delz))
 
-(defun make-scale (x-scale y-scale z-scale)
+(deftransform scale (x-scale y-scale z-scale)
   "Makes a matrix that scales x by X-SCALE, y by Y-SCALE, and z by Z-SCALE"
-  (let ((transform (make-matrix)))
-    (to-identity transform)
-    (setf (aref transform 0 0) x-scale
-          (aref transform 1 1) y-scale
-          (aref transform 2 2) z-scale)
-    transform))
+  (setf (aref transform 0 0) x-scale
+        (aref transform 1 1) y-scale
+        (aref transform 2 2) z-scale))
 
-(defun make-rotate-z (degrees)
+(deftransform rotate-z (degrees)
   "Makes a matrix that rotates by DEGREES counter-clockwise using z as the axis"
-  (let ((transform (make-matrix))
-        (radians (/ (* degrees pi) 180)))
-    (to-identity transform)
+  (let ((radians (/ (* degrees pi) 180)))
     (setf (aref transform 0 0) (cos radians)
           (aref transform 0 1) (- 0 (sin radians))
           (aref transform 1 0) (sin radians)
-          (aref transform 1 1) (cos radians))
-    transform))
+          (aref transform 1 1) (cos radians))))

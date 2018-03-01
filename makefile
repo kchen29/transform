@@ -1,9 +1,10 @@
 objects := display.lisp matrix.lisp draw.lisp main.lisp
 compile-lisps := --eval '(progn $(foreach file,$(objects),(compile-file "$(file)")))'
 load-fasls := $(foreach file,$(objects),--load "$(subst lisp,fasl,$(file))")
+run := (main-test)
 
 all: main.fasl
-	sbcl --noinform --non-interactive $(load-fasls) --eval '(progn (main-test) (main 500 "output.ppm"))'
+	sbcl --noinform --non-interactive $(load-fasls) --eval '(progn $(run))'
 
 main.fasl: $(objects)
 	sbcl --non-interactive $(compile-lisps) > /dev/null
