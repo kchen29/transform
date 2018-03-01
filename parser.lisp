@@ -27,4 +27,6 @@
 	    takes 1 argument (filename)
 	 quit: end parsing"
   (with-open-file (stream filename)
-    (format t (read-line stream))))
+    (do ((line (read-line stream nil "quit") (read-line stream nil "quit")))
+        ((string= line "quit"))
+      (format t line))))
