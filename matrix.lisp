@@ -87,6 +87,22 @@
           (aref transform 1 0) (sin radians)
           (aref transform 1 1) (cos radians))))
 
+(deftransform rotate-x (degrees)
+  "Makes a matrix that rotates by DEGREES counter-clockwise using x as the axis"
+  (let ((radians (/ (* degrees pi) 180)))
+    (setf (aref transform 1 1) (cos radians)
+          (aref transform 1 2) (- 0 (sin radians))
+          (aref transform 2 1) (sin radians)
+          (aref transform 2 2) (cos radians))))
+
+(deftransform rotate-y (degrees)
+  "Makes a matrix that rotates by DEGREES counter-clockwise using y as the axis"
+  (let ((radians (/ (* degrees pi) 180)))
+    (setf (aref transform 2 2) (cos radians)
+          (aref transform 2 0) (- 0 (sin radians))
+          (aref transform 0 2) (sin radians)
+          (aref transform 0 0) (cos radians))))
+
 (defun do-rotate (axis degrees transform-matrix)
   "Rotate TRANSFORM-MATRIX by the rotation matrix with AXIS by DEGREES"
   (case axis
