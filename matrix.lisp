@@ -86,3 +86,10 @@
           (aref transform 0 1) (- 0 (sin radians))
           (aref transform 1 0) (sin radians)
           (aref transform 1 1) (cos radians))))
+
+(defun do-rotate (axis degrees transform-matrix)
+  "Rotate TRANSFORM-MATRIX by the rotation matrix with AXIS by DEGREES"
+  (case axis
+    (x (do-rotate-x degrees transform-matrix))
+    (y (do-rotate-y degrees transform-matrix))
+    (z (do-rotate-z degrees transform-matrix))))

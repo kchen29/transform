@@ -1,3 +1,14 @@
+(defmacro switch (value test &body cases)
+  "Macro for switch-case statements."
+  `(cond
+     ,@(loop for case in cases
+          for test-value = (first case)
+          for return-value = (rest case)
+          if (eql 'otherwise test-value)
+            collect `(t ,@return-value)
+          else
+            collect `((funcall ,test ,value ,test-value) ,@return-value))))
+
 (defun parse-file (filename edges transform screen screen-size)
   "Parses FILENAME. Uses EDGES and TRANSFORM matrices to store edges
    and the transform matrix. Commands write to SCREEN.
@@ -29,7 +40,7 @@
   (with-open-file (stream filename)
     (do ((line (next-line stream) (next-line stream)))
         ((string= line "quit"))
-      (parse-line line stream))))
+      (parse-line line stream edges transform screen screen-size))))
 
 (defun parse-line (line stream edges transform screen screen-size)
   "Parses line according to parse-file."
@@ -37,14 +48,16 @@
       (switch line #'string=
         ("ident" (to-identity transform))
         ("apply" (matrix-multiply transform edges))
-        ("display"))
-      (let ((args (parse-args (next-line))))
+        ("display" (draw-lines edges screen '(255 0 255))
+                   (write-display "temp.ppm" (list screen-size screen-size) screen)))
+      (let ((args (parse-args (next-line stream))))
         (switch line #'string=
           ("line" (apply #'add-edge (cons edges args)))
-          ("scale" (apply #'do-scale (append args transform)))
-          ("translate" (apply #'do-translate (append args transform)))
-          ("rotate")
-          ("save")))))
+          ("scale" (apply #'do-scale (append args (list transform))))
+          ("translate" (apply #'do-translate (append args (list transform))))
+          ("rotate" (apply #'do-rotate (append args (list transform))))
+          ("save" (draw-lines edges screen '(255 0 255))
+                  (apply #'write-ppm (append args (list (list screen-size screen-size) screen))))))))
 
 (defun command-no-args (line)
   "Returns t if line takes no args. Nil otherwise"
@@ -58,11 +71,3 @@
   "Given LINE (a string), parse it into a list of args."
   (read-from-string (concatenate 'string "(" line ")")))
 
-(defmacro switch (value test &body cases)
-  "Macro for switch-case statements."
-  `(cond
-     ,@(loop for (test-value return-value) in cases
-          if (eql 'otherwise test-value)
-            collect `(t ,return-value)
-          else
-            collect `((funcall ,test ,value ,test-value) ,return-value))))

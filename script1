@@ -1,0 +1,12 @@
+line
+0 0 0 499 499 0
+line
+499 0 0 0 499 0
+display
+ident
+rotate
+z 45
+apply
+display
+save
+output.ppm

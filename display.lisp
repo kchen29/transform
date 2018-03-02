@@ -20,7 +20,14 @@
   (when (and (< -1 x (array-dimension screen 0)) (< -1 y (array-dimension screen 1)))
     (setf (aref screen x y) color)))
 
-(defun display (filename)
+(defun display (filename &key (wait nil))
   "Displays the image with FILENAME.
+   If WAIT is t, then will wait until display ends
    Uses imagemagick's display to display an image."
-  (run-program "display" (list filename) :wait nil :search t))
+  (run-program "display" (list filename) :wait wait :search t))
+
+(defun write-display (filename dimensions screen)
+  "Writes the ppm, displays the image, then removes it"
+  (write-ppm filename dimensions screen)
+  (display filename :wait t)
+  (delete-file filename))
