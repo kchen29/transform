@@ -48,17 +48,24 @@
 ;;;transformations
 (defmacro deftransform (transform-name args &body body)
   "Defuns make-transform given TRANSFORM-NAME, using args and the body.
+   Requires docstring as part of body.
    Also defuns do-transform, applying make-transform to another matrix."
-  `(defun ,(intern (concatenate 'string "MAKE-" (symbol-name transform-name))) ,args
-     ,(when (stringp (first body))
-            (pop body))
-     (let ((transform (make-matrix)))
-       (to-identity transform)
-       ,@body
-       transform))
-  `(defun ,(intern (concatenate 'string "DO-" (symbol-name transform-name))) ,(append args '(transform-matrix))
-     ,(concatenate 'string "Applies make-" (string-downcase (symbol-name transform-name)) " to TRANSFORM-MATRIX")
-     (matrix-multiply (,(intern (concatenate 'string "MAKE-" (symbol-name transform-name))) ,@args) transform-matrix)))
+  (let* ((transform-string (symbol-name transform-name))
+         (lower-transform-string (string-downcase transform-string))
+         (make-symbol (intern (concatenate 'string "MAKE-" transform-string)))
+         (do-symbol (intern (concatenate 'string "DO-" transform-string)))
+         (do-docstring (concatenate 'string "Applies make-"
+                                    lower-transform-string " to TRANSFORM-MATRIX")))
+  `(progn
+     (defun ,make-symbol ,args
+       ,(pop body)
+       (let ((transform (make-matrix)))
+         (to-identity transform)
+         ,@body
+         transform))
+     (defun ,do-symbol ,(append args '(transform-matrix))
+       ,do-docstring
+       (matrix-multiply (,make-symbol ,@args) transform-matrix)))))
 
 (deftransform translate (delx dely delz)
   "Makes a matrix that translates by DELX, DELY, and DELZ"
