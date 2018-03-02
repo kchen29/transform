@@ -79,29 +79,26 @@
         (aref transform 1 1) y-scale
         (aref transform 2 2) z-scale))
 
-(deftransform rotate-z (degrees)
-  "Makes a matrix that rotates by DEGREES counter-clockwise using z as the axis"
-  (let ((radians (/ (* degrees pi) 180)))
-    (setf (aref transform 0 0) (cos radians)
-          (aref transform 0 1) (- 0 (sin radians))
-          (aref transform 1 0) (sin radians)
-          (aref transform 1 1) (cos radians))))
+(defmacro defrotation (rotate-axis axis-0 axis-1)
+  "Defines a rotation around ROTATE-AXIS. AXIS-0 and AXIS-1 mark the value of the axes,
+   where x corresponds to 0, y 1, and z 2."
+  (let* ((axis-string (symbol-name rotate-axis))
+         (lower-axis-string (string-downcase axis-string))
+         (rotate-symbol (intern (concatenate 'string "ROTATE-" axis-string)))
+         (rotate-docstring
+          (concatenate 'string "Makes a matrix that rotates by DEGREES counter-clockwise using "
+                       lower-axis-string " as the axis.")))
+    `(deftransform ,rotate-symbol (degrees)
+       ,rotate-docstring
+       (let ((radians (/ (* degrees pi) 180)))
+         (setf (aref transform ,axis-0 ,axis-0) (cos radians)
+               (aref transform ,axis-0 ,axis-1) (- 0 (sin radians))
+               (aref transform ,axis-1 ,axis-0) (sin radians)
+               (aref transform ,axis-1 ,axis-1) (cos radians))))))
 
-(deftransform rotate-x (degrees)
-  "Makes a matrix that rotates by DEGREES counter-clockwise using x as the axis"
-  (let ((radians (/ (* degrees pi) 180)))
-    (setf (aref transform 1 1) (cos radians)
-          (aref transform 1 2) (- 0 (sin radians))
-          (aref transform 2 1) (sin radians)
-          (aref transform 2 2) (cos radians))))
-
-(deftransform rotate-y (degrees)
-  "Makes a matrix that rotates by DEGREES counter-clockwise using y as the axis"
-  (let ((radians (/ (* degrees pi) 180)))
-    (setf (aref transform 2 2) (cos radians)
-          (aref transform 2 0) (- 0 (sin radians))
-          (aref transform 0 2) (sin radians)
-          (aref transform 0 0) (cos radians))))
+(defrotation z 0 1)
+(defrotation x 1 2)
+(defrotation y 2 0)
 
 (defun do-rotate (axis degrees transform-matrix)
   "Rotate TRANSFORM-MATRIX by the rotation matrix with AXIS by DEGREES"
