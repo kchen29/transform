@@ -20,6 +20,11 @@
   (when (and (< -1 x (array-dimension screen 0)) (< -1 y (array-dimension screen 1)))
     (setf (aref screen x y) color)))
 
+(defun clear-screen (screen)
+  (dotimes (x (array-dimension screen 0))
+    (dotimes (y (array-dimension screen 1))
+      (setf (aref screen x y) '(0 0 0)))))
+
 (defun display (filename &key (wait nil))
   "Displays the image with FILENAME.
    If WAIT is t, then will wait until display ends

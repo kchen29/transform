@@ -22,7 +22,7 @@
 	 scale: create a scale matrix,
 	    then multiply the transform matrix by the scale matrix -
 	    takes 3 arguments (sx sy sz)
-	 translate: create a translation matrix,
+	 move: create a translation matrix,
 	    then multiply the transform matrix by the translation matrix -
 	    takes 3 arguments (tx ty tz)
 	 rotate: create an rotation matrix,
@@ -49,15 +49,20 @@
         ("ident" (to-identity transform))
         ("apply" (matrix-multiply transform edges))
         ("display" (draw-lines edges screen '(255 0 255))
-                   (write-display "temp.ppm" (list screen-size screen-size) screen)))
+                   (write-display "temp.ppm" (list screen-size screen-size) screen)
+                   (clear-screen screen)))
       (let ((args (parse-args (next-line stream))))
         (switch line #'string=
-          ("line" (apply #'add-edge (cons edges args)))
+          ("line" (apply #'add-edge edges args))
           ("scale" (apply #'do-scale (append args (list transform))))
-          ("translate" (apply #'do-translate (append args (list transform))))
+          ("move" (apply #'do-translate (append args (list transform))))
           ("rotate" (apply #'do-rotate (append args (list transform))))
           ("save" (draw-lines edges screen '(255 0 255))
-                  (apply #'write-ppm (append args (list (list screen-size screen-size) screen))))))))
+                  (apply #'write-ppm (list (string-downcase (symbol-name (first args)))
+                                           (list screen-size screen-size)
+                                           screen))
+                  (clear-screen screen))
+          (otherwise (format t "Unknown command: ~a~%" line))))))
 
 (defun command-no-args (line)
   "Returns t if line takes no args. Nil otherwise"
