@@ -29,16 +29,34 @@
   (with-open-file (stream filename)
     (do ((line (next-line stream) (next-line stream)))
         ((string= line "quit"))
+      (parse-line line stream))))
+
+(defun parse-line (line stream edges transform screen screen-size)
+  "Parses line according to parse-file."
+  (if (command-no-args line)
       (switch line #'string=
-        ("line")
-        ("ident")
-        ("scale")
-        ("translate")
-        ("rotate")))))
+        ("ident" (to-identity transform))
+        ("apply" (matrix-multiply transform edges))
+        ("display"))
+      (let ((args (parse-args (next-line))))
+        (switch line #'string=
+          ("line" (apply #'add-edge (cons edges args)))
+          ("scale" (apply #'do-scale (append args transform)))
+          ("translate" (apply #'do-translate (append args transform)))
+          ("rotate")
+          ("save")))))
+
+(defun command-no-args (line)
+  "Returns t if line takes no args. Nil otherwise"
+  (or (string= line "ident") (string= line "apply") (string= line "display")))
 
 (defun next-line (stream)
   "Reads the next line in stream. Returns \"quit\" if eof is reached"
   (read-line stream nil "quit"))
+
+(defun parse-args (line)
+  "Given LINE (a string), parse it into a list of args."
+  (read-from-string (concatenate 'string "(" line ")")))
 
 (defmacro switch (value test &body cases)
   "Macro for switch-case statements."
