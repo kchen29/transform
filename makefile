@@ -1,13 +1,8 @@
-objects := display.lisp matrix.lisp draw.lisp parser.lisp main.lisp
-compile-lisps := --eval '(progn $(foreach file,$(objects),(compile-file "$(file)")))'
-load-fasls := $(foreach file,$(objects),--load "$(subst lisp,fasl,$(file))")
-run := (main-test) (main "script")
+asdf := (asdf:load-system "engine")
+main := (main-test) (main "script")
 
-all: main.fasl
-	sbcl --noinform --non-interactive $(load-fasls) --eval '(progn $(run))'
-
-main.fasl: $(objects)
-	sbcl --non-interactive $(compile-lisps) > /dev/null
+all:
+	sbcl --noinform --non-interactive --load "load.lisp" --eval '(progn $(asdf) $(main))'
 
 clean:
 	rm -f *~ *.fasl *.ppm *.png
