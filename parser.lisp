@@ -1,5 +1,7 @@
 (defmacro switch (value test &body cases)
-  "Macro for switch-case statements."
+  "Macro for switch-case statements.
+   TESTs VALUE with the first element in each case of CASES.
+   If otherwise is the first element, then it acts as the default case."
   `(cond
      ,@(loop for case in cases
           for test-value = (first case)
@@ -9,7 +11,7 @@
           else
             collect `((funcall ,test ,value ,test-value) ,@return-value))))
 
-(defun parse-file (filename edges transform screen screen-size)
+(defun parse-file (filename edges transform dimensions screen)
   "Parses FILENAME. Uses EDGES and TRANSFORM matrices to store edges
    and the transform matrix. Commands write to SCREEN.
    The file follows the following format:
@@ -25,31 +27,29 @@
 	 move: create a translation matrix,
 	    then multiply the transform matrix by the translation matrix -
 	    takes 3 arguments (tx ty tz)
-	 rotate: create an rotation matrix,
+	 rotate: create a rotation matrix,
 	    then multiply the transform matrix by the rotation matrix -
 	    takes 2 arguments (axis theta) axis should be x, y or z.
             Theta is in degrees
-	 apply: apply the current transformation matrix to the
-	    edge matrix
-	 display: draw the lines of the edge matrix to the screen
-	    display the screen
+	 apply: apply the current transformation matrix to the edge matrix
+	 display: draw the lines of the edge matrix to the screen, then display the screen
 	 save: draw the lines of the edge matrix to the screen
 	    save the screen to a file -
 	    takes 1 argument (filename)
-	 quit: end parsing"
+	 quit: end parsing."
   (with-open-file (stream filename)
     (do ((line (next-line stream) (next-line stream)))
         ((string= line "quit"))
-      (parse-line line stream edges transform screen screen-size))))
+      (parse-line line stream edges transform dimensions screen))))
 
-(defun parse-line (line stream edges transform screen screen-size)
+(defun parse-line (line stream edges transform dimensions screen)
   "Parses line according to parse-file."
   (if (command-no-args line)
       (switch line #'string=
         ("ident" (to-identity transform))
         ("apply" (matrix-multiply transform edges))
         ("display" (draw-lines edges screen '(255 0 255))
-                   (write-display "temp.ppm" (list screen-size screen-size) screen)
+                   (write-display "temp.ppm" dimensions screen)
                    (clear-screen screen)))
       (let ((args (parse-args (next-line stream))))
         (switch line #'string=
@@ -58,18 +58,17 @@
           ("move" (apply #'do-translate (append args (list transform))))
           ("rotate" (apply #'do-rotate (append args (list transform))))
           ("save" (draw-lines edges screen '(255 0 255))
-                  (apply #'save (list (string-downcase (symbol-name (first args)))
-                                           (list screen-size screen-size)
-                                           screen))
+                  (apply #'save (string-downcase (symbol-name (first args)))
+                         (list dimensions screen))
                   (clear-screen screen))
           (otherwise (format t "Unknown command: ~a~%" line))))))
 
 (defun command-no-args (line)
-  "Returns t if line takes no args. Nil otherwise"
+  "Returns t if line takes no args. Nil otherwise."
   (or (string= line "ident") (string= line "apply") (string= line "display")))
 
 (defun next-line (stream)
-  "Reads the next line in stream. Returns \"quit\" if eof is reached"
+  "Reads the next line in stream. Returns \"quit\" if eof is reached."
   (read-line stream nil "quit"))
 
 (defun parse-args (line)
