@@ -7,7 +7,7 @@
   (loop for x below (array-dimension matrix 0)
      collect (loop for y below (array-dimension matrix 1)
                 collect (aref matrix x y))))
-                        
+
 (defun to-identity (matrix)
   "Turns MATRIX into an identity matrix."
   (dotimes (x (array-dimension matrix 0))
@@ -35,7 +35,7 @@
   "Dots the ROW of M1 with the COL of M2. 
    They should have the same corresponding sizes."
   (loop for i below (array-dimension m1 1)
-       sum (* (aref m1 row i) (aref m2 i col))))
+     sum (* (aref m1 row i) (aref m2 i col))))
 
 (defun make-matrix (&optional (rows 4) (cols 4))
   "Makes a matrix with ROWS and COLS"
@@ -53,28 +53,28 @@
   (let* ((transform-string (symbol-name transform-name))
          (lower-transform-string (string-downcase transform-string))
          (make-symbol (intern (concatenate 'string "MAKE-" transform-string)))
-         (do-symbol (intern (concatenate 'string "DO-" transform-string)))
-         (do-docstring (concatenate 'string "Applies make-"
-                                    lower-transform-string " to TRANSFORM-MATRIX")))
-  `(progn
-     (defun ,make-symbol ,args
-       ,(pop body)
-       (let ((transform (make-matrix)))
-         (to-identity transform)
-         ,@body
-         transform))
-     (defun ,do-symbol ,(append args '(transform-matrix))
-       ,do-docstring
-       (matrix-multiply (,make-symbol ,@args) transform-matrix)))))
+         (make-doc (concatenate 'string "Makes a matrix that " (pop body)))
+         (transform-doc (concatenate 'string "Applies make-"
+                                     lower-transform-string " to TRANSFORM-MATRIX")))
+    `(progn
+       (defun ,make-symbol ,args
+         ,make-doc
+         (let ((transform (make-matrix)))
+           (to-identity transform)
+           ,@body
+           transform))
+       (defun ,transform-name ,(append args '(transform-matrix))
+         ,transform-doc
+         (matrix-multiply (,make-symbol ,@args) transform-matrix)))))
 
 (deftransform translate (delx dely delz)
-  "Makes a matrix that translates by DELX, DELY, and DELZ"
+  "translates by DELX, DELY, and DELZ"
   (setf (aref transform 0 3) delx
         (aref transform 1 3) dely
         (aref transform 2 3) delz))
 
 (deftransform scale (x-scale y-scale z-scale)
-  "Makes a matrix that scales x by X-SCALE, y by Y-SCALE, and z by Z-SCALE"
+  "scales x by X-SCALE, y by Y-SCALE, and z by Z-SCALE"
   (setf (aref transform 0 0) x-scale
         (aref transform 1 1) y-scale
         (aref transform 2 2) z-scale))
@@ -86,7 +86,7 @@
          (lower-axis-string (string-downcase axis-string))
          (rotate-symbol (intern (concatenate 'string "ROTATE-" axis-string)))
          (rotate-docstring
-          (concatenate 'string "Makes a matrix that rotates by DEGREES counter-clockwise using "
+          (concatenate 'string "rotates by DEGREES counter-clockwise using "
                        lower-axis-string " as the axis.")))
     `(deftransform ,rotate-symbol (degrees)
        ,rotate-docstring
@@ -100,9 +100,9 @@
 (defrotation x 1 2)
 (defrotation y 2 0)
 
-(defun do-rotate (axis degrees transform-matrix)
+(defun rotate (axis degrees transform-matrix)
   "Rotate TRANSFORM-MATRIX by the rotation matrix with AXIS by DEGREES"
   (case axis
-    (x (do-rotate-x degrees transform-matrix))
-    (y (do-rotate-y degrees transform-matrix))
-    (z (do-rotate-z degrees transform-matrix))))
+    (x (rotate-x degrees transform-matrix))
+    (y (rotate-y degrees transform-matrix))
+    (z (rotate-z degrees transform-matrix))))

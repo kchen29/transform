@@ -54,9 +54,9 @@
       (let ((args (parse-args (next-line stream))))
         (switch line #'string=
           ("line" (apply #'add-edge edges args))
-          ("scale" (apply #'do-scale (append args (list transform))))
-          ("move" (apply #'do-translate (append args (list transform))))
-          ("rotate" (apply #'do-rotate (append args (list transform))))
+          ("scale" (apply #'scale (append args (list transform))))
+          ("move" (apply #'translate (append args (list transform))))
+          ("rotate" (apply #'rotate (append args (list transform))))
           ("save" (draw-lines edges screen '(255 0 255))
                   (apply #'save (string-downcase (symbol-name (first args)))
                          (list dimensions screen))
