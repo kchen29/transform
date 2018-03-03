@@ -10,4 +10,4 @@ main.fasl: $(objects)
 	sbcl --non-interactive $(compile-lisps) > /dev/null
 
 clean:
-	rm -f *~ *.fasl *.ppm
+	rm -f *~ *.fasl *.ppm *.png

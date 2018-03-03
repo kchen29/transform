@@ -58,7 +58,7 @@
           ("move" (apply #'do-translate (append args (list transform))))
           ("rotate" (apply #'do-rotate (append args (list transform))))
           ("save" (draw-lines edges screen '(255 0 255))
-                  (apply #'write-ppm (list (string-downcase (symbol-name (first args)))
+                  (apply #'save (list (string-downcase (symbol-name (first args)))
                                            (list screen-size screen-size)
                                            screen))
                   (clear-screen screen))

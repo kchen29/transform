@@ -13,6 +13,15 @@
      collect (loop for x below (array-dimension screen 0)
                 collect (aref screen x y))))
 
+(defun save (filename dimensions screen)
+  "Saves SCREEN to filename.
+   Attempts conversion using imagemagick's convert if filename is not a ppm."
+  (let* ((ppm (namestring (make-pathname :defaults filename :type "ppm"))))
+    (write-ppm ppm dimensions screen)
+    (unless (equal (pathname-type (pathname filename)) "ppm")
+      (run-program "convert" (list ppm filename) :wait t :search t)
+      (delete-file ppm))))
+
 (defun plot (x y screen color)
   "Plots (x, y) on the 2D array SCREEN with COLOR.
    Floors x and y. Checks bounds. COLOR is not copied."
