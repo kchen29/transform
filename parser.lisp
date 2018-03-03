@@ -49,7 +49,7 @@
         ("ident" (to-identity transform))
         ("apply" (matrix-multiply transform edges))
         ("display" (draw-lines edges screen '(255 0 255))
-                   (write-display "temp.ppm" dimensions screen)
+                   (display dimensions screen :wait t)
                    (clear-screen screen)))
       (let ((args (parse-args (next-line stream))))
         (switch line #'string=
