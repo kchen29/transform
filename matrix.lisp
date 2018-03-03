@@ -26,7 +26,7 @@
     (copy-matrix m3 m2)))
 
 (defun copy-matrix (m1 m2)
-  "Copies the values of m1 to m2. Returns m2"
+  "Copies the values of m1 to m2. Returns m2."
   (dotimes (x (array-dimension m1 0) m2)
     (dotimes (y (array-dimension m1 1))
       (setf (aref m2 x y) (aref m1 x y)))))
@@ -38,7 +38,7 @@
      sum (* (aref m1 row i) (aref m2 i col))))
 
 (defun make-matrix (&optional (rows 4) (cols 4))
-  "Makes a matrix with ROWS and COLS"
+  "Makes a matrix with ROWS and COLS."
   (make-array (list rows cols) :adjustable t))
 
 (defun clear-matrix (matrix)
@@ -68,13 +68,13 @@
          (matrix-multiply (,make-symbol ,@args) transform-matrix)))))
 
 (deftransform translate (delx dely delz)
-  "translates by DELX, DELY, and DELZ"
+  "translates by DELX, DELY, and DELZ."
   (setf (aref transform 0 3) delx
         (aref transform 1 3) dely
         (aref transform 2 3) delz))
 
 (deftransform scale (x-scale y-scale z-scale)
-  "scales x by X-SCALE, y by Y-SCALE, and z by Z-SCALE"
+  "scales x by X-SCALE, y by Y-SCALE, and z by Z-SCALE."
   (setf (aref transform 0 0) x-scale
         (aref transform 1 1) y-scale
         (aref transform 2 2) z-scale))
@@ -101,7 +101,7 @@
 (defrotation y 2 0)
 
 (defun rotate (axis degrees transform-matrix)
-  "Rotate TRANSFORM-MATRIX by the rotation matrix with AXIS by DEGREES"
+  "Rotate TRANSFORM-MATRIX by the rotation matrix with AXIS by DEGREES."
   (case axis
     (x (rotate-x degrees transform-matrix))
     (y (rotate-y degrees transform-matrix))

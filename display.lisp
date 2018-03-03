@@ -30,6 +30,7 @@
     (setf (aref screen x y) color)))
 
 (defun clear-screen (screen)
+  "Clears SCREEN. Sets all the pixels to be black."
   (dotimes (x (array-dimension screen 0))
     (dotimes (y (array-dimension screen 1))
       (setf (aref screen x y) '(0 0 0)))))

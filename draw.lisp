@@ -45,7 +45,7 @@
 
 (defun add-point (matrix x y &optional (z 0))
   "Adds a point (x y z) onto MATRIX.
-   Appends the point as a column"
+   Appends the point as a column."
   (adjust-array matrix (list (array-dimension matrix 0)
                              (1+ (array-dimension matrix 1))))
   (let ((end (1- (array-dimension matrix 1))))
@@ -53,4 +53,3 @@
           (aref matrix 1 end) y
           (aref matrix 2 end) z
           (aref matrix 3 end) 1)))
-  
