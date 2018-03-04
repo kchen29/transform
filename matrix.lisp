@@ -5,8 +5,8 @@
 (defun matrix-to-list (matrix)
   "Turns MATRIX into a list."
   (loop for x below (array-dimension matrix 0)
-     collect (loop for y below (array-dimension matrix 1)
-                collect (aref matrix x y))))
+        collect (loop for y below (array-dimension matrix 1)
+                      collect (aref matrix x y))))
 
 (defun to-identity (matrix)
   "Turns MATRIX into an identity matrix."
@@ -35,7 +35,7 @@
   "Dots the ROW of M1 with the COL of M2. 
    They should have the same corresponding sizes."
   (loop for i below (array-dimension m1 1)
-     sum (* (aref m1 row i) (aref m2 i col))))
+        sum (* (aref m1 row i) (aref m2 i col))))
 
 (defun make-matrix (&optional (rows 4) (cols 4))
   "Makes a matrix with ROWS and COLS."
@@ -86,8 +86,8 @@
          (lower-axis-string (string-downcase axis-string))
          (rotate-symbol (intern (concatenate 'string "ROTATE-" axis-string)))
          (rotate-docstring
-          (concatenate 'string "rotates by DEGREES counter-clockwise using "
-                       lower-axis-string " as the axis.")))
+           (concatenate 'string "rotates by DEGREES counter-clockwise using "
+                        lower-axis-string " as the axis.")))
     `(deftransform ,rotate-symbol (degrees)
        ,rotate-docstring
        (let ((radians (/ (* degrees pi) 180)))

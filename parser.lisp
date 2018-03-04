@@ -4,12 +4,12 @@
    If otherwise is the first element, then it acts as the default case."
   `(cond
      ,@(loop for case in cases
-          for test-value = (first case)
-          for return-value = (rest case)
-          if (eql 'otherwise test-value)
-            collect `(t ,@return-value)
-          else
-            collect `((funcall ,test ,value ,test-value) ,@return-value))))
+             for test-value = (first case)
+             for return-value = (rest case)
+             if (eql 'otherwise test-value)
+               collect `(t ,@return-value)
+             else
+               collect `((funcall ,test ,value ,test-value) ,@return-value))))
 
 (defun parse-file (filename edges transform dimensions screen)
   "Parses FILENAME. Uses EDGES and TRANSFORM matrices to store edges
